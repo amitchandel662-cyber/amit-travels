@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan Your Route — {{ vehicle.name }} | Amit Travels</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+:root{
+  --ink:#10151a;
+  --panel:#161e23;
+  --panel-2:#1c262c;
+  --brass:#c9a24b;
+  --brass-bright:#e6c26f;
+  --rust:#b5482a;
+  --pine:#4c7a5e;
+  --ink-text:#ece6d8;
+  --muted:#8b9299;
+  --line:rgba(236,230,216,0.09);
+}
+*{box-sizing:border-box;}
+body{ font-family:'Inter',sans-serif; background:var(--ink); color:var(--ink-text); }
+.font-display{ font-family:'Fraunces', serif; font-optical-sizing:auto; }
+.font-mono{ font-family:'JetBrains Mono', monospace; }
+
+.plate{ background: linear-gradient(180deg, var(--panel), var(--panel-2)); border:1px solid rgba(236,230,216,0.10); position:relative; }
+.plate::before{ content:''; position:absolute; inset:0; border:1px solid rgba(0,0,0,0.35); pointer-events:none; }
+.corner-tick{ position:absolute; width:9px; height:9px; }
+.corner-tick.tl{ top:10px; left:10px; border-top:1.5px solid var(--brass); border-left:1.5px solid var(--brass); }
+.corner-tick.tr{ top:10px; right:10px; border-top:1.5px solid var(--brass); border-right:1.5px solid var(--brass); }
+.corner-tick.bl{ bottom:10px; left:10px; border-bottom:1.5px solid var(--brass); border-left:1.5px solid var(--brass); }
+.corner-tick.br{ bottom:10px; right:10px; border-bottom:1.5px solid var(--brass); border-right:1.5px solid var(--brass); }
+
+.badge-mono{
+  font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.08em;
+  color:var(--brass-bright); border:1px solid rgba(201,162,75,0.35);
+  background:rgba(201,162,75,0.08); padding:4px 10px; border-radius:2px;
+}
+
+input[type="text"], input[type="date"], input[type="number"], input[type="email"], input[type="tel"], textarea{
+  background: rgba(16,21,26,0.6); border:1px solid rgba(236,230,216,0.18);
+  color: var(--ink-text); color-scheme: dark;
+  font-family:'JetBrains Mono', monospace; font-size:13.5px;
+}
+input:focus, textarea:focus{ outline:none; border-color: var(--brass); box-shadow: 0 0 0 3px rgba(201,162,75,0.15); }
+input::placeholder, textarea::placeholder{ color:#5b6167; }
+
+.chip{
+  font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.03em;
+  border:1px solid rgba(236,230,216,0.18); color:var(--muted);
+  padding:6px 11px; border-radius:999px; cursor:pointer; transition: border-color .2s, color .2s;
+  background:rgba(16,21,26,0.4);
+}
+.chip:hover{ border-color: var(--brass); color: var(--brass-bright); }
+
+.stop-row{ border:1px solid rgba(236,230,216,0.10); background:rgba(16,21,26,0.35); }
+.stop-num{
+  width:22px; height:22px; border-radius:50%; background:var(--brass); color:var(--ink);
+  font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+
+.stat-block{ border-top:1px solid rgba(236,230,216,0.08); padding:14px 0; }
+.stat-block .label{ font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.08em; color:var(--muted); }
+.stat-block .value{ font-family:'Fraunces', serif; font-size:22px; color:#f3efe4; }
+
+#map { 
+  background: var(--ink); /* Uses your exact website background color */
+}
+
+.leaflet-tile {
+  /* 1. Strip all OSM color, 2. Invert to dark mode, 3. Boost contrast so roads pop */
+  filter: grayscale(100%) invert(100%) brightness(85%) contrast(120%);
+  
+  /* 4. Drop opacity to let the brand's --ink background tint the entire map */
+  opacity: 0.55; 
+}
+.leaflet-control-attribution{ background: rgba(16,21,26,0.7) !important; color:#8b9299 !important; font-size:9px !important; }
+.leaflet-control-attribution a{ color:#c9a24b !important; }
+.leaflet-control-zoom a{ background:#161e23 !important; color:#ece6d8 !important; border-color:rgba(236,230,216,0.15) !important; }
+
+#search-results{ background:var(--panel-2); border:1px solid rgba(236,230,216,0.15); }
+.result-row:hover{ background:rgba(201,162,75,0.08); }
+
+#toast{ transition: opacity .3s ease, transform .3s ease; }
+</style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+<header class="fixed w-full top-0 z-50 border-b border-white/5" style="background:rgba(16,21,26,0.85); backdrop-filter:blur(14px);">
+  <div class="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M2 19L9 5L13 13L16 7L22 19" stroke="#c9a24b" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <span class="text-lg font-semibold tracking-wide font-display">Amit Travels</span>
+    </a>
+    <a href="/" class="text-[13px] font-mono uppercase tracking-wider text-slate-400 hover:text-[#e6c26f] transition flex items-center gap-2">
+      <span>←</span> Back to Home
+    </a>
+  </div>
+</header>
+
+<div class="max-w-7xl mx-auto px-6 pt-28 pb-4">
+  <div class="flex flex-wrap items-center gap-3 mb-2">
+    <span class="badge-mono">ROUTE PLANNER</span>
+    <!-- Removed Price Per Km from Header -->
+    <span class="font-mono text-[11px] text-slate-500">{{ vehicle.name }} · {{ vehicle.seating_capacity }} seats</span>
+  </div>
+  <h1 class="text-3xl md:text-4xl font-display font-medium text-[#f3efe4]">Build your own route</h1>
+  <p class="text-slate-400 text-sm mt-2 max-w-xl">Add your stops on the map, see the real distance, and send the itinerary straight to Amit on WhatsApp.</p>
+</div>
+
+<main class="max-w-7xl mx-auto px-6 pb-20 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+  <!-- Map -->
+  <div class="lg:col-span-7">
+    <div id="map" class="w-full h-[420px] lg:h-[640px] rounded-sm border border-white/10 lg:sticky lg:top-28"></div>
+  </div>
+
+  <!-- Builder panel -->
+  <div class="lg:col-span-5">
+    <div class="plate rounded-sm overflow-hidden">
+      <div class="corner-tick tl"></div><div class="corner-tick tr"></div>
+      <div class="corner-tick bl"></div><div class="corner-tick br"></div>
+
+      <div class="px-6 pt-6 pb-4 border-b border-white/10">
+        <h3 class="font-display text-lg text-[#f3efe4] mb-3">Add stops</h3>
+        <div class="relative">
+          <div class="flex gap-2">
+            <input type="text" id="search-input" placeholder="Search a place — e.g. Kaza, Chitkul" class="w-full px-3.5 py-2.5 rounded-sm">
+            <button id="search-btn" type="button" class="px-4 py-2.5 border border-[#c9a24b]/50 text-[#e6c26f] rounded-sm text-sm font-mono hover:bg-[#c9a24b]/10 transition shrink-0">Add</button>
+          </div>
+          <div id="search-results" class="absolute left-0 right-0 mt-1.5 rounded-sm overflow-hidden z-[1000] hidden max-h-56 overflow-y-auto"></div>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-3">
+          <span class="chip" data-name="Chandigarh" data-lat="30.7333" data-lon="76.7794">Chandigarh</span>
+          <span class="chip" data-name="Shimla" data-lat="31.1048" data-lon="77.1734">Shimla</span>
+          <span class="chip" data-name="Manali" data-lat="32.2432" data-lon="77.1892">Manali</span>
+          <span class="chip" data-name="Kaza" data-lat="32.2246" data-lon="78.0724">Kaza</span>
+          <span class="chip" data-name="Leh" data-lat="34.1526" data-lon="77.5771">Leh</span>
+        </div>
+      </div>
+
+      <div class="px-6 py-5 border-b border-white/10">
+        <div id="stop-list" class="space-y-2.5">
+          <p id="empty-state" class="text-slate-500 text-sm font-mono">No stops yet — search above or tap a quick city.</p>
+        </div>
+      </div>
+
+      <!-- Changed from grid-cols-3 to grid-cols-2 -->
+      <div class="px-6 py-5 border-b border-white/10 grid grid-cols-2 gap-4">
+        <div class="stat-block border-t-0">
+          <div class="label">DISTANCE</div>
+          <div class="value" id="dist-val">—</div>
+        </div>
+        <div class="stat-block border-t-0">
+          <div class="label">DRIVE TIME</div>
+          <div class="value" id="time-val">—</div>
+        </div>
+        <!-- FARE CALCULATION COMMENTED OUT 
+        <div class="stat-block border-t-0">
+          <div class="label">EST. FARE</div>
+          <div class="value" id="fare-val">—</div>
+        </div>
+        -->
+      </div>
+
+      <form id="trip-form" class="px-6 py-6 space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1.5">Start Date</label>
+            <input type="date" id="start-date" class="w-full px-3.5 py-2.5 rounded-sm" required>
+          </div>
+          <div>
+            <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1.5">Trip Length (days)</label>
+            <input type="number" id="trip-days" min="1" value="1" class="w-full px-3.5 py-2.5 rounded-sm" required>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1.5">Passengers</label>
+          <input type="number" id="passengers" min="1" max="{{ vehicle.seating_capacity }}" placeholder="Up to {{ vehicle.seating_capacity }}" class="w-full px-3.5 py-2.5 rounded-sm" required>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1.5">Your Name</label>
+            <input type="text" id="guest-name" placeholder="Full name" class="w-full px-3.5 py-2.5 rounded-sm" required>
+          </div>
+          <div>
+            <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1.5">Phone</label>
+            <input type="tel" id="guest-phone" placeholder="+91" class="w-full px-3.5 py-2.5 rounded-sm" required>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1.5">Email (optional)</label>
+          <input type="email" id="guest-email" placeholder="you@example.com" class="w-full px-3.5 py-2.5 rounded-sm">
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1.5">Notes (optional)</label>
+          <textarea id="notes" rows="2" placeholder="Anything Amit should know?" class="w-full px-3.5 py-2.5 rounded-sm resize-none"></textarea>
+        </div>
+
+        <button type="submit" id="send-btn" class="w-full bg-[#25D366] text-[#0b1a11] font-semibold py-3.5 rounded-sm hover:bg-[#2fe077] transition text-sm flex items-center justify-center gap-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.85 9.85 0 0 0 12.04 2m0 1.67a8.2 8.2 0 0 1 8.23 8.24c0 4.54-3.7 8.23-8.24 8.23a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.37c0-4.54 3.7-8.24 8.25-8.24z"/></svg>
+          Send Itinerary on WhatsApp
+        </button>
+        <p id="form-hint" class="text-xs text-center text-slate-500 font-mono">ADD AT LEAST 2 STOPS TO CONTINUE</p>
+      </form>
+    </div>
+  </div>
+</main>
+
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 badge-mono opacity-0 pointer-events-none z-[2000]" style="background:var(--panel-2);"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ---- Context from Django ----
+const VEHICLE = {
+  id: {{ vehicle.id }},
+  name: "{{ vehicle.name|escapejs }}",
+  // pricePerKm: {{ vehicle.base_price_per_km }}, // COMMENTED OUT
+  seats: {{ vehicle.seating_capacity }}
+};
+const WHATSAPP_NUMBER = "917876611935"; // TODO: move to settings / a site config model
+const CSRF_TOKEN = "{{ csrf_token }}";
+
+// ---- Map setup ----
+const map = L.map('map', { zoomControl: true }).setView([31.9, 77.3], 7);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
+  maxZoom: 18
+}).addTo(map);
+
+const markersLayer = L.layerGroup().addTo(map);
+let routeLine = null;
+let stops = []; // { name, lat, lon, marker }
+let currentTrip = null; // { km, mins }
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.opacity = '1';
+  el.style.transform = 'translate(-50%, -6px)';
+  setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translate(-50%, 0)'; }, 2600);
+}
+
+function addStop(name, lat, lon) {
+  const marker = L.circleMarker([lat, lon], {
+    radius: 7, color: '#c9a24b', weight: 2, fillColor: '#e6c26f', fillOpacity: 1
+  }).bindTooltip(name, { permanent: false });
+  marker.addTo(markersLayer);
+  stops.push({ name, lat: parseFloat(lat), lon: parseFloat(lon), marker });
+  renderStopList();
+  if (stops.length >= 2) {
+    computeRoute();
+  } else {
+    map.setView([lat, lon], 9);
+  }
+}
+
+function removeStop(index) {
+  markersLayer.removeLayer(stops[index].marker);
+  stops.splice(index, 1);
+  renderStopList();
+  if (stops.length >= 2) {
+    computeRoute();
+  } else {
+    if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
+    resetSummary();
+  }
+}
+
+function moveStop(index, direction) {
+  const target = index + direction;
+  if (target < 0 || target >= stops.length) return;
+  [stops[index], stops[target]] = [stops[target], stops[index]];
+  renderStopList();
+  if (stops.length >= 2) computeRoute();
+}
+
+function renderStopList() {
+  const container = document.getElementById('stop-list');
+  const emptyState = document.getElementById('empty-state');
+  container.innerHTML = '';
+  if (stops.length === 0) {
+    container.appendChild(emptyState);
+    document.getElementById('form-hint').textContent = 'ADD AT LEAST 2 STOPS TO CONTINUE';
+    return;
+  }
+  stops.forEach((stop, i) => {
+    const row = document.createElement('div');
+    row.className = 'stop-row flex items-center gap-3 px-3 py-2.5 rounded-sm';
+    row.innerHTML = `
+      <span class="stop-num">${i + 1}</span>
+      <span class="text-sm text-[#ece6d8] flex-1 truncate">${stop.name}</span>
+      <button type="button" data-action="up" data-index="${i}" class="text-slate-500 hover:text-[#e6c26f] text-xs px-1">↑</button>
+      <button type="button" data-action="down" data-index="${i}" class="text-slate-500 hover:text-[#e6c26f] text-xs px-1">↓</button>
+      <button type="button" data-action="remove" data-index="${i}" class="text-slate-500 hover:text-[#b5482a] text-xs px-1">✕</button>
+    `;
+    container.appendChild(row);
+  });
+  // Changed "REVIEW THE FARE" to "REVIEW YOUR ROUTE"
+  document.getElementById('form-hint').textContent = stops.length >= 2
+    ? 'REVIEW YOUR ROUTE BELOW, THEN SEND'
+    : 'ADD ONE MORE STOP TO CALCULATE THE ROUTE';
+}
+
+document.getElementById('stop-list').addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  const index = parseInt(btn.dataset.index, 10);
+  if (btn.dataset.action === 'remove') removeStop(index);
+  if (btn.dataset.action === 'up') moveStop(index, -1);
+  if (btn.dataset.action === 'down') moveStop(index, 1);
+});
+
+// ---- Quick-add city chips (no geocoding needed) ----
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    addStop(chip.dataset.name, chip.dataset.lat, chip.dataset.lon);
+  });
+});
+
+// ---- Search (Nominatim) ----
+async function searchPlace() {
+  const input = document.getElementById('search-input');
+  const q = input.value.trim();
+  if (!q) return;
+  const resultsBox = document.getElementById('search-results');
+  resultsBox.innerHTML = '<div class="px-3 py-2.5 text-xs font-mono text-slate-500">Searching…</div>';
+  resultsBox.classList.remove('hidden');
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&countrycodes=in`);
+    const results = await res.json();
+    if (!results.length) {
+      resultsBox.innerHTML = '<div class="px-3 py-2.5 text-xs font-mono text-slate-500">No matches. Try a different spelling.</div>';
+      return;
+    }
+    resultsBox.innerHTML = '';
+    results.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'result-row px-3 py-2.5 text-sm cursor-pointer border-b border-white/5 last:border-0';
+      row.textContent = r.display_name;
+      row.addEventListener('click', () => {
+        addStop(r.display_name.split(',').slice(0, 2).join(','), r.lat, r.lon);
+        resultsBox.classList.add('hidden');
+        input.value = '';
+      });
+      resultsBox.appendChild(row);
+    });
+  } catch (err) {
+    resultsBox.innerHTML = '<div class="px-3 py-2.5 text-xs font-mono text-[#b5482a]">Search failed — try again.</div>';
+  }
+}
+document.getElementById('search-btn').addEventListener('click', searchPlace);
+document.getElementById('search-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); searchPlace(); }
+});
+document.addEventListener('click', (e) => {
+  const box = document.getElementById('search-results');
+  if (!box.contains(e.target) && e.target.id !== 'search-input') box.classList.add('hidden');
+});
+
+// ---- Routing (OSRM demo server — swap for a paid provider in production) ----
+async function computeRoute() {
+  try {
+    const coordStr = stops.map(s => `${s.lon},${s.lat}`).join(';');
+    const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data.routes || !data.routes.length) { toast('Could not calculate that route.'); return; }
+
+    const route = data.routes[0];
+    if (routeLine) map.removeLayer(routeLine);
+    const latlngs = route.geometry.coordinates.map(c => [c[1], c[0]]);
+    routeLine = L.polyline(latlngs, { color: '#e6c26f', weight: 4, opacity: 0.85 }).addTo(map);
+    map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
+
+    const km = route.distance / 1000;
+    const mins = route.duration / 60;
+    updateSummary(km, mins);
+  } catch (err) {
+    toast('Routing service is unavailable right now.');
+  }
+}
+
+function updateSummary(km, mins) {
+  // const fare = km * VEHICLE.pricePerKm; // COMMENTED OUT
+  currentTrip = { km, mins };
+  document.getElementById('dist-val').textContent = `${km.toFixed(0)} km`;
+  const h = Math.floor(mins / 60), m = Math.round(mins % 60);
+  document.getElementById('time-val').textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
+  // document.getElementById('fare-val').textContent = `₹${Math.round(fare).toLocaleString('en-IN')}`; // COMMENTED OUT
+}
+
+function resetSummary() {
+  currentTrip = null;
+  document.getElementById('dist-val').textContent = '—';
+  document.getElementById('time-val').textContent = '—';
+  // document.getElementById('fare-val').textContent = '—'; // COMMENTED OUT
+}
+
+// ---- WhatsApp send + best-effort booking save ----
+function buildMessage(date, days, passengers, name, phone, notes) {
+  const stopsText = stops.map((s, i) => `${i + 1}. ${s.name}`).join('\n');
+  const km = currentTrip ? currentTrip.km.toFixed(0) : '?';
+  // const fare = currentTrip ? Math.round(currentTrip.fare).toLocaleString('en-IN') : '?'; // COMMENTED OUT
+  
+  // Removed "Estimated fare" from WhatsApp Message
+  let msg = `Hi Amit, I'd like to plan a trip.\n\nVehicle: ${VEHICLE.name}\nRoute:\n${stopsText}\n\nApprox distance: ${km} km\nStart date: ${date}\nTrip length: ${days} day(s)\nPassengers: ${passengers}\n\nName: ${name}\nPhone: ${phone}`;
+  if (notes) msg += `\nNotes: ${notes}`;
+  return msg;
+}
+
+document.getElementById('trip-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  if (stops.length < 2) { toast('Add at least a pickup and a destination.'); return; }
+  if (!currentTrip) { toast('Still calculating the route — try again in a moment.'); return; }
+
+  const date = document.getElementById('start-date').value;
+  const days = parseInt(document.getElementById('trip-days').value, 10) || 1;
+  const passengers = parseInt(document.getElementById('passengers').value, 10) || 1;
+  const name = document.getElementById('guest-name').value.trim();
+  const phone = document.getElementById('guest-phone').value.trim();
+  const email = document.getElementById('guest-email').value.trim();
+  const notes = document.getElementById('notes').value.trim();
+
+  if (passengers > VEHICLE.seats) { toast(`${VEHICLE.name} seats up to ${VEHICLE.seats} passengers.`); return; }
+
+  const sendBtn = document.getElementById('send-btn');
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Sending…';
+
+  // Best-effort: also save as a real booking request. If this fails, we still
+  // send the WhatsApp message — the lead is not lost.
+  try {
+    const startISO = new Date(date + 'T09:00:00').toISOString();
+    const endISO = new Date(new Date(date + 'T09:00:00').getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+    await fetch('/api/bookings/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+      body: JSON.stringify({
+        vehicle: VEHICLE.id,
+        guest_name: name,
+        guest_phone: phone,
+        guest_email: email,
+        pickup_location: stops[0].name,
+        drop_location: stops[stops.length - 1].name,
+        start_date: startISO,
+        end_date: endISO,
+        passengers: passengers,
+        special_requirements: `Custom route (${currentTrip.km.toFixed(0)} km): ${stops.map(s => s.name).join(' → ')}${notes ? '. Notes: ' + notes : ''}`
+      })
+    });
+  } catch (err) {
+    console.warn('Booking save failed — continuing to WhatsApp anyway.', err);
+  }
+
+  const message = buildMessage(date, days, passengers, name, phone, notes);
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+
+  sendBtn.disabled = false;
+  sendBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.85 9.85 0 0 0 12.04 2m0 1.67a8.2 8.2 0 0 1 8.23 8.24c0 4.54-3.7 8.23-8.24 8.23a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.37c0-4.54 3.7-8.24 8.25-8.24z"/></svg> Send Itinerary on WhatsApp`;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ package.title|default:"Tour Details" }} | Amit Travels</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --ink: #10151a;
+      --panel: #161e23;
+      --panel-2: #1c262c;
+      --brass: #c9a24b;
+      --brass-bright: #e6c26f;
+      --rust: #b5482a;
+      --pine: #4c7a5e;
+      --ink-text: #ece6d8;
+      --muted: #8b9299;
+      --line: rgba(236, 230, 216, 0.09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--ink);
+      color: var(--ink-text);
+    }
+
+    .font-display {
+      font-family: 'Fraunces', serif;
+      font-optical-sizing: auto;
+    }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .plate {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid rgba(236, 230, 216, 0.10);
+      position: relative;
+    }
+
+    .plate::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+
+    .corner-tick {
+      position: absolute;
+      width: 9px;
+      height: 9px;
+    }
+
+    .corner-tick.tl {
+      top: 10px;
+      left: 10px;
+      border-top: 1.5px solid var(--brass);
+      border-left: 1.5px solid var(--brass);
+    }
+
+    .corner-tick.tr {
+      top: 10px;
+      right: 10px;
+      border-top: 1.5px solid var(--brass);
+      border-right: 1.5px solid var(--brass);
+    }
+
+    .corner-tick.bl {
+      bottom: 10px;
+      left: 10px;
+      border-bottom: 1.5px solid var(--brass);
+      border-left: 1.5px solid var(--brass);
+    }
+
+    .corner-tick.br {
+      bottom: 10px;
+      right: 10px;
+      border-bottom: 1.5px solid var(--brass);
+      border-right: 1.5px solid var(--brass);
+    }
+
+    .badge-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--brass-bright);
+      border: 1px solid rgba(201, 162, 75, 0.35);
+      background: rgba(201, 162, 75, 0.08);
+      padding: 4px 10px;
+      border-radius: 2px;
+    }
+
+    .route-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      padding: 4px 9px;
+      border-radius: 2px;
+      border: 1px solid;
+      color: #e79a7a;
+      border-color: rgba(181, 72, 42, 0.5);
+      background: rgba(181, 72, 42, 0.12);
+    }
+
+    .route-rule {
+      height: 1px;
+      background: repeating-linear-gradient(90deg, var(--brass) 0 10px, transparent 10px 18px);
+      opacity: 0.55;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 34px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 9px;
+      top: 6px;
+      bottom: 6px;
+      width: 1px;
+      background: repeating-linear-gradient(180deg, var(--brass) 0 5px, transparent 5px 10px);
+      opacity: 0.55;
+    }
+
+    .timeline .stop {
+      position: relative;
+      padding-bottom: 2.5rem;
+    }
+
+    .timeline .stop:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline .stop::before {
+      content: '';
+      position: absolute;
+      left: -34px;
+      top: 3px;
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: var(--ink);
+      border: 1.5px solid var(--brass);
+    }
+
+    .timeline .stop.peak::before {
+      background: var(--rust);
+      border-color: var(--rust);
+      box-shadow: 0 0 0 4px rgba(181, 72, 42, 0.15);
+    }
+
+    .timeline .stop .day-num {
+      position: absolute;
+      left: -34px;
+      top: 3px;
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    input[type="number"],
+    select,
+    textarea {
+      background: rgba(16, 21, 26, 0.6);
+      border: 1px solid rgba(236, 230, 216, 0.18);
+      color: var(--ink-text);
+      color-scheme: dark;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--brass);
+      box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.15);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #5b6167;
+    }
+
+    .vehicle-option {
+      border: 1px solid rgba(236, 230, 216, 0.12);
+      background: rgba(16, 21, 26, 0.4);
+      transition: border-color .2s ease, background .2s ease;
+    }
+
+    .vehicle-option:has(input:checked) {
+      border-color: var(--brass);
+      background: rgba(201, 162, 75, 0.08);
+    }
+
+    .vehicle-option input[type="radio"] {
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(236, 230, 216, 0.35);
+      background: transparent;
+      flex-shrink: 0;
+    }
+
+    .vehicle-option input[type="radio"]:checked {
+      border-color: var(--brass);
+      background: radial-gradient(circle, var(--brass) 0 40%, transparent 44%);
+    }
+
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fadeInUp .7s cubic-bezier(.16, 1, .3, 1) forwards;
+      opacity: 0;
+    }
+
+    .delay-200 {
+      animation-delay: .2s;
+    }
+  </style>
+</head>
+
+<body class="antialiased overflow-x-hidden">
+
+  <!-- Header -->
+  <header class="fixed w-full top-0 z-50 border-b border-white/5" style="background:rgba(16,21,26,0.85); backdrop-filter:blur(14px);">
+    <div class="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M2 19L9 5L13 13L16 7L22 19" stroke="#c9a24b" stroke-width="1.6" stroke-linejoin="round" />
+        </svg>
+        <span class="text-lg font-semibold tracking-wide font-display">Amit Travels</span>
+      </a>
+      <a href="{% url 'home' %}" class="text-[13px] font-mono uppercase tracking-wider text-slate-400 hover:text-[#e6c26f] transition flex items-center gap-2">
+        <span>←</span> Back to Home
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Section (Dynamic) -->
+  <section class="relative pt-32 pb-16 px-6">
+    <div class="absolute inset-0 -z-10">
+      <!-- Use package image if available, else fallback -->
+      {% if package and package.image %}
+      <img src="{{ package.image.url }}" class="w-full h-full object-cover" style="filter:saturate(0.5) contrast(1.05) brightness(0.55);">
+      {% else %}
+      <img src="https://images.unsplash.com/photo-1626618585671-000b21a8d462?auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover" style="filter:saturate(0.5) contrast(1.05) brightness(0.55);">
+      {% endif %}
+      <div class="absolute inset-0" style="background:linear-gradient(180deg, rgba(16,21,26,0.55) 0%, var(--ink) 92%);">
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto animate-fade-in">
+      <div class="flex flex-wrap items-center gap-3 mb-6">
+        <span class="badge-mono">{{ package.duration_days|default:"X" }} DAYS TOTAL</span>
+        <span class="route-tag">PREMIUM TOUR</span>
+      </div>
+      <h1 class="text-4xl md:text-6xl font-display font-medium tracking-tight text-[#f3efe4] mb-4 max-w-3xl">
+        {{ package.title|default:"Select a Tour Package" }}
+      </h1>
+      <p class="text-slate-400 max-w-2xl text-[16px] leading-relaxed">
+        {{ package.description|default:"Experience the beauty of the Himalayas with our meticulously planned itineraries and expert drivers." }}
+      </p>
+    </div>
+  </section>
+
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="route-rule"></div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-12 gap-14">
+
+    <!-- Dynamic Itinerary Section -->
+    <div class="lg:col-span-7 animate-fade-in">
+      <div class="flex items-end justify-between mb-10 flex-wrap gap-3">
+        <h2 class="text-3xl font-display font-medium text-[#f3efe4]">Daily itinerary</h2>
+        <span class="badge-mono">{{ itinerary.count|default:"0" }} STOPS</span>
+      </div>
+
+      <div class="timeline">
+        {% if itinerary %}
+        {% for day in itinerary %}
+        <div class="stop {% if forloop.counter == 7 %}peak{% endif %}">
+          <span class="day-num" {% if forloop.counter == 7 %}style="color:#f3efe4;"{% endif %}>{{ day.day_number }}</span>
+          <div class="flex items-center gap-3 mb-1">
+            <span class="font-mono text-[11px] tracking-widest text-[#e6c26f]">DAY {{ day.day_number }}</span>
+          </div>
+          <h3 class="text-xl font-display text-[#f3efe4] mb-2">{{ day.title }}</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">{{ day.description }}</p>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="stop">
+          <h3 class="text-xl font-display text-slate-500 mb-2">No itinerary details available yet.</h3>
+          <p class="text-slate-600 text-sm">Please check back later or contact us directly to plan your route.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Booking Panel -->
+    <div class="lg:col-span-5 animate-fade-in delay-200">
+      <div class="sticky top-28 plate rounded-sm overflow-hidden">
+        <div class="corner-tick tl"></div>
+        <div class="corner-tick tr"></div>
+        <div class="corner-tick bl"></div>
+        <div class="corner-tick br"></div>
+
+        <div class="px-7 pt-7 pb-5 flex items-center justify-between border-b border-white/10">
+          <div>
+            <h3 class="font-display text-xl text-[#f3efe4] mb-1">Reserve this tour</h3>
+            <p class="text-slate-500 text-sm">Pick your dates and vehicle below.</p>
+          </div>
+          <span class="badge-mono">FORM 02</span>
+        </div>
+
+        <form id="booking-form" class="px-7 py-6 space-y-6" onsubmit="handleBooking(event)">
+          <div>
+            <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1.5">Start Date</label>
+            <input type="date" id="booking-date" class="w-full px-3.5 py-3 rounded-sm" required>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-3">Select vehicle</label>
+            <div class="space-y-2.5">
+              <!-- Dynamic Vehicles Loop -->
+              {% for vehicle in vehicles %}
+              <label class="vehicle-option flex items-center justify-between px-4 py-3.5 rounded-sm cursor-pointer">
+                <div class="flex items-center gap-3">
+                  <input type="radio" name="vehicle" value="{{ vehicle.name }}" {% if forloop.first %}checked{% endif %}>
+                  <div>
+                    <div class="text-sm text-[#f3efe4] font-medium vehicle-name">{{ vehicle.name }}</div>
+                    <div class="text-xs font-mono text-slate-500 mt-0.5">{{ vehicle.seating_capacity }} SEATS</div>
+                  </div>
+                </div>
+                <span class="font-mono text-sm text-slate-400">₹{{ vehicle.base_price_per_km }}/km</span>
+              </label>
+              {% empty %}
+              <p class="text-slate-500 text-sm">No vehicles currently available.</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1.5">Passengers</label>
+              <input type="number" min="1" placeholder="e.g. 4" class="w-full px-3.5 py-3 rounded-sm">
+            </div>
+            <div>
+              <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1.5">Pickup Time</label>
+              <input type="time" class="w-full px-3.5 py-3 rounded-sm">
+            </div>
+          </div>
+
+        <button type="submit" class="w-full bg-[#c9a24b] text-[#10151a] font-semibold py-3.5 rounded-sm hover:bg-[#e6c26f] transition text-sm">
+          Confirm Booking Request
+        </button>
+          <p class="text-xs text-center text-slate-500 font-mono">NO PAYMENT NOW — WE WILL CALL YOU WITH PRICING</p>
+        </form>
+
+        <!-- Success Panel (Hidden by default) -->
+        <div id="success-panel" class="hidden px-7 py-16 text-center animate-fade-in">
+          <div class="w-16 h-16 mx-auto mb-6 flex items-center justify-center rounded-full bg-pine border border-pine">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h3 class="font-display text-2xl text-[#f3efe4] mb-2">Request Received</h3>
+          <!-- UPDATED PARAGRAPH -->
+          <p class="text-slate-400 text-sm mb-8 leading-relaxed">
+            Sending your itinerary via WhatsApp. Our team will review your route and call you back shortly with exact pricing.
+          </p>
+          <button onclick="resetBooking()" class="w-full border border-white/10 hover:border-white/20 py-3.5 rounded-sm transition text-sm text-slate-400">
+            Modify Request
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function handleBooking(event) {
+      event.preventDefault();
+
+      // Get Tour Name
+      const tourName = "{{ package.title|default:'Custom Tour'|escapejs }}";
+
+      // Get selected vehicle safely
+      const checkedVehicleInput = document.querySelector('input[name="vehicle"]:checked');
+      const vehicle = checkedVehicleInput ? checkedVehicleInput.value : 'a vehicle';
+
+      // Get Date
+      let date = document.getElementById('booking-date').value;
+      if (!date) { date = "an upcoming date"; }
+
+      // Dynamically build the itinerary text using Django template tags
+      let itineraryText = "";
+      {% if itinerary %}
+        {% for day in itinerary %}
+          itineraryText += `Day {{ day.day_number }}: {{ day.title|escapejs }}\n`;
+        {% endfor %}
+      {% else %}
+        itineraryText = "Standard itinerary details to be discussed.\n";
+      {% endif %}
+
+      // Build the message
+      const phone = "917876611935";
+      const message = `Hello Amit Travels, I would like to book the *${tourName}* on ${date} using *${vehicle}*.\n\n*Itinerary:*\n${itineraryText}`;
+      
+      const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+      // Swap UI state
+      document.getElementById('booking-form').classList.add('hidden');
+      document.getElementById('success-panel').classList.remove('hidden');
+
+      // Open WhatsApp
+      window.open(whatsappUrl, '_blank');
+    }
+
+    function resetBooking() {
+      document.getElementById('booking-form').classList.remove('hidden');
+      document.getElementById('success-panel').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<!-- Hero: copy + big multi-route elevation chart -->
+<main class="relative pt-32 pb-8 lg:pt-40 px-6">
+  <div class="absolute inset-0 contour-bg pointer-events-none"></div>
+  <div class="max-w-7xl mx-auto relative z-10">
+    <div class="max-w-3xl space-y-7 animate-fade-in">
+      <div class="badge-mono inline-block">CHANDIGARH → HIMACHAL → LADAKH</div>
+      <h1 class="text-5xl lg:text-[4.5rem] font-display font-medium leading-[1.05] tracking-tight text-[#f3efe4]">
+        Drive the passes.<br>We'll get you over them.
+      </h1>
+      <p class="text-[17px] text-slate-400 max-w-xl leading-relaxed">
+        A maintained fleet and drivers who've crossed Rohtang and Tanglang La more times than they can count — for
+        airport runs, day trips, and multi-week circuits through Spiti and Ladakh.
+      </p>
+      <div class="flex flex-wrap gap-4 pt-2">
+        <a href="#fleet"
+          class="bg-[#ece6d8] text-[#10151a] px-7 py-3 font-semibold text-sm hover:bg-white transition rounded-sm">See
+          the Fleet</a>
+        <a href="#destinations"
+          class="border border-white/15 px-7 py-3 font-semibold text-sm hover:border-[#c9a24b]/60 hover:text-[#e6c26f] transition rounded-sm">Browse
+          Packages</a>
+      </div>
+    </div>
+
+    <!-- Signature: bigger, multi-route elevation profile -->
+    <div class="mt-16 animate-fade-in delay-200">
+      <svg viewBox="0 0 1400 440" class="w-full h-auto" preserveAspectRatio="xMidYMid meet">
+        <line x1="10" y1="400" x2="1390" y2="400" stroke="var(--line)" stroke-width="1" stroke-dasharray="2 6" />
+
+        <!-- Route 1: Manali–Leh Highway (Yellow) -->
+        <path
+          d="M40,350 C130,320 190,220 280,190 C360,165 400,240 470,270 C560,305 620,140 700,100 C780,65 830,175 900,150 C980,120 1040,75 1120,55 C1200,90 1290,175 1360,225"
+          fill="none" stroke="#c9a24b" stroke-width="2.5" />
+        <circle cx="40" cy="350" r="3.5" fill="#c9a24b" />
+        <circle cx="280" cy="190" r="3.5" fill="#c9a24b" /> <!-- Rohtang Pass -->
+        <circle cx="700" cy="100" r="3.5" fill="#c9a24b" /> <!-- Baralacha La -->
+        <circle cx="1120" cy="55" r="4" fill="#c9a24b" /> <!-- Tanglang La -->
+        <circle cx="1360" cy="225" r="3.5" fill="#c9a24b" />
+
+        <!-- Route 2: Spiti Circuit (Green) -->
+        <path
+          d="M40,365 C140,360 190,350 250,345 C330,338 370,335 420,330 C500,320 560,312 620,305 C700,295 760,270 820,255 C900,235 960,175 1020,150 C1120,190 1220,290 1300,350"
+          fill="none" stroke="#4c7a5e" stroke-width="2.5" />
+        <circle cx="40" cy="365" r="3.5" fill="#4c7a5e" />
+        <circle cx="1020" cy="150" r="4" fill="#4c7a5e" /> <!-- Kunzum La -->
+        <circle cx="1300" cy="350" r="3.5" fill="#4c7a5e" />
+
+        <!-- Route 3: Shimla–Manali (Rust) -->
+        <path
+          d="M40,395 C140,388 200,375 280,365 C360,357 400,350 460,345 C540,338 610,355 680,370 C760,340 830,260 900,225 C980,265 1080,330 1150,370"
+          fill="none" stroke="#b5482a" stroke-width="2.5" />
+        <circle cx="40" cy="395" r="3.5" fill="#b5482a" />
+        <circle cx="900" cy="225" r="4" fill="#b5482a" /> <!-- Rohtang La -->
+        <circle cx="1150" cy="370" r="3.5" fill="#b5482a" />
+
+        <!-- Pass Labels -->
+        <g font-family="JetBrains Mono, monospace" font-size="12" fill="#8b9299">
+          <!-- Y-axis Peak Elevation -->
+          <text x="40" y="20" fill="#e6c26f">5,328m</text>
+
+          <!-- Route 1 Labels (Yellow Accent) -->
+          <text x="280" y="175" text-anchor="middle" fill="#e6c26f">ROHTANG LA</text>
+          <text x="700" y="85" text-anchor="middle" fill="#e6c26f">BARALACHA LA</text>
+          <text x="1120" y="40" text-anchor="middle" fill="#e6c26f">TANGLANG LA</text>
+
+          <!-- Route 2 Labels (Green Accent) -->
+          <text x="1020" y="135" text-anchor="middle" fill="#7fb594">KUNZUM LA</text>
+
+          <!-- Route 3 Labels (Rust Accent) -->
+          <text x="900" y="210" text-anchor="middle" fill="#d96b48">ROHTANG LA</text>
+        </g>
+      </svg>
+      <div class="flex flex-wrap gap-x-8 gap-y-3 mt-6 pt-6 border-t border-white/5">
+        <div class="flex items-center gap-2.5">
+          <span class="legend-dot" style="background:#c9a24b;"></span>
+          <span class="font-mono text-[11px] text-slate-400">MANALI–LEH HIGHWAY <span class="text-slate-600">· peak
+              5,328m, Tanglang La</span></span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <span class="legend-dot" style="background:#4c7a5e;"></span>
+          <span class="font-mono text-[11px] text-slate-400">SPITI CIRCUIT <span class="text-slate-600">· peak 4,551m,
+              Kunzum La</span></span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <span class="legend-dot" style="background:#b5482a;"></span>
+          <span class="font-mono text-[11px] text-slate-400">SHIMLA–MANALI <span class="text-slate-600">· peak 3,978m,
+              Rohtang La</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<div class="max-w-7xl mx-auto px-6 pt-12">
+  <div class="route-rule"></div>
+</div>
+
+<!-- Why Us -->
+<section id="why-us" class="py-24 relative z-10">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex items-end justify-between mb-14 flex-wrap gap-4">
+      <h2 class="text-3xl md:text-4xl font-display font-medium text-[#f3efe4]">Why ride with us</h2>
+      <span class="badge-mono">03 STANDARDS</span>
+    </div>
+    <div class="grid md:grid-cols-3 gap-px" style="background: rgba(236,230,216,0.08);">
+      <div class="bg-[#10151a] p-9">
+        <span class="font-mono text-xs text-[#e6c26f]">01</span>
+        <h3 class="text-xl font-display mt-3 mb-3 text-[#f3efe4]">Serviced before every dispatch</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">Brakes, tyres and coolant get checked before every trip — not
+          just the interior. Mountain roads don't forgive a skipped inspection.</p>
+      </div>
+      <div class="bg-[#10151a] p-9">
+        <span class="font-mono text-xs text-[#e6c26f]">02</span>
+        <h3 class="text-xl font-display mt-3 mb-3 text-[#f3efe4]">Drivers who know the passes</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">Verified chauffeurs who've driven Rohtang, Kunzum and Khardung
+          La in every season, and know when a route needs a plan B.</p>
+      </div>
+      <div class="bg-[#10151a] p-9">
+        <span class="font-mono text-xs text-[#e6c26f]">03</span>
+        <h3 class="text-xl font-display mt-3 mb-3 text-[#f3efe4]">Support at any altitude</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">Round-the-clock dispatch and support, whether you're catching
+          a 6am flight or stuck behind a landslide clearance at 14,000 ft.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Fleet -->
+<section id="fleet" class="py-24 relative z-10 bg-[#0d1216] border-t border-white/5">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex items-end justify-between mb-14 flex-wrap gap-4">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-display font-medium text-[#f3efe4] mb-3">The fleet</h2>
+        <p class="text-slate-400 max-w-lg text-sm">Pick a vehicle, then build your own route — real distance, real fare,
+          sent straight to us on WhatsApp.</p>
+      </div>
+      <span class="badge-mono">{{ vehicles|length }} AVAILABLE</span>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      {% for vehicle in vehicles %}
+      <a href="{% url 'trip_planner' vehicle.id %}"
+        class="plate rounded-sm overflow-hidden card-hover flex flex-col group">
+        <div class="h-52 relative overflow-hidden">
+          {% if vehicle.image %}
+          <img src="{{ vehicle.image.url }}" alt="{{ vehicle.name }}"
+            class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+          {% else %}
+          <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80"
+            alt="{{ vehicle.name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+          {% endif %}
+          <div class="absolute inset-0" style="background:linear-gradient(180deg, transparent 50%, #10151a 100%);">
+          </div>
+          <span class="absolute top-4 left-4 badge-mono">{{ vehicle.get_category_display }}</span>
+        </div>
+        <div class="p-6 flex flex-col flex-1">
+          <h3 class="text-xl font-display text-[#f3efe4] mb-1">{{ vehicle.name }}</h3>
+          <div class="flex gap-5 text-[13px] font-mono text-slate-400 mb-5">
+            <span>{{ vehicle.seating_capacity }} SEATS</span><span>{{ vehicle.luggage_capacity }} BAGS</span>
+          </div>
+          {% if vehicle.features %}
+          <div class="flex flex-wrap gap-2 mb-5">
+            {% for feature in vehicle.features|slice:":3" %}
+            <span class="text-[11px] font-mono text-slate-500 border border-white/10 px-2 py-1 rounded-sm">{{ feature
+              }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="flex justify-between items-center border-t border-white/10 pt-4 mt-auto">
+            <div class="font-display text-xl text-[#f3efe4]">₹{{ vehicle.base_price_per_km|floatformat:0 }}<span
+                class="text-xs text-slate-500 font-sans"> / km</span></div>
+            <span
+              class="text-[#e6c26f] text-sm font-mono group-hover:translate-x-1 transition-transform inline-block">PLAN
+              ROUTE →</span>
+          </div>
+        </div>
+      </a>
+      {% empty %}
+      <p class="text-slate-500 text-sm col-span-3">No vehicles available right now — check back soon.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Destinations -->
+<section id="destinations" class="py-24 relative z-10">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex items-end justify-between mb-14 flex-wrap gap-4">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-display font-medium text-[#f3efe4] mb-3">Trending routes</h2>
+        <p class="text-slate-400 max-w-lg text-sm">Fixed itineraries. Same fleet, same drivers, mapped day by day.</p>
+      </div>
+      <span class="badge-mono">{{ packages|length }} CIRCUITS</span>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-6">
+      {% for package in packages %}
+      <div class="plate rounded-sm overflow-hidden flex flex-col sm:flex-row card-hover">
+        <div class="w-full sm:w-2/5 h-56 sm:h-auto relative overflow-hidden shrink-0">
+          {% if package.image %}
+          <img src="{{ package.image.url }}" class="w-full h-full object-cover">
+          {% else %}
+          <img src="https://images.unsplash.com/photo-1626618585671-000b21a8d462?auto=format&fit=crop&w=600&q=80"
+            class="w-full h-full object-cover">
+          {% endif %}
+        </div>
+        <div class="w-full sm:w-3/5 p-6 flex flex-col">
+          <div class="flex justify-between items-start mb-4">
+            <h3 class="text-2xl font-display text-[#f3efe4]">{{ package.title }}</h3>
+            <span class="badge-mono">{{ package.duration_days }} DAYS</span>
+          </div>
+          <div class="h-[140px] overflow-y-auto pr-2 space-y-2.5 custom-scrollbar mb-4">
+            {% for day in package.itinerary_days.all %}
+            <div class="flex items-start gap-3 text-sm"><span class="mile-dot"></span>
+              <p class="text-slate-300 leading-snug"><span class="font-mono text-[#e6c26f] mr-1">D{{ day.day_number
+                  }}</span>{{ day.title }}</p>
+            </div>
+            {% empty %}
+            <p class="text-slate-500 text-sm">{{ package.description }}</p>
+            {% endfor %}
+          </div>
+          <div class="mt-auto border-t border-white/10 pt-4">
+            <a href="{% url 'tour_detail' package.id %}"
+              class="text-[#e6c26f] text-sm font-mono flex items-center justify-between">Select vehicle & book
+              <span>→</span></a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-slate-500 text-sm">No packages published yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

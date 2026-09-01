@@ -1,0 +1,12 @@
+# Django
+*.pyc
+__pycache__/
+db.sqlite3
+.env
+
+# Environments
+venv/
+env/
+
+# Media uploads (so we don't push local photos)
+media/

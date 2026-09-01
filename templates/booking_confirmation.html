@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Confirmed | Amit Travels</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Reusing your established design variables */
+        :root{ --ink:#10151a; --panel:#161e23; --brass:#c9a24b; --ink-text:#ece6d8; }
+        body { background: var(--ink); color: var(--ink-text); font-family: 'Inter', sans-serif; }
+        .plate{ background: linear-gradient(180deg, var(--panel), #1c262c); border:1px solid rgba(236,230,216,0.10); }
+        .badge-mono{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--brass); border:1px solid rgba(201,162,75,0.35); padding:4px 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <div class="max-w-xl w-full plate p-10 text-center animate-fade-in">
+        <!-- Success Icon -->
+        <div class="w-16 h-16 mx-auto mb-6 flex items-center justify-center rounded-full bg-emerald-900/20 border border-emerald-700/30">
+            <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+
+        <h1 class="text-3xl font-display font-medium text-[#f3efe4] mb-3">Booking Request Received</h1>
+        <p class="text-slate-400 text-sm mb-8 leading-relaxed">
+            Thank you for choosing Amit Travels. Our operations team is verifying vehicle availability for your requested dates. You will receive a WhatsApp message within 24 hours.
+        </p>
+
+        <!-- Summary Panel -->
+        <div class="bg-black/20 rounded-sm border border-white/5 p-6 mb-8 text-left space-y-4">
+            <div class="flex justify-between border-b border-white/5 pb-3">
+                <span class="font-mono text-xs text-slate-500 uppercase">Tour</span>
+                <span class="text-sm font-medium">Spiti Valley Expedition</span>
+            </div>
+            <div class="flex justify-between border-b border-white/5 pb-3">
+                <span class="font-mono text-xs text-slate-500 uppercase">Vehicle</span>
+                <span class="text-sm font-medium">Toyota Innova Crysta</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-mono text-xs text-slate-500 uppercase">Date</span>
+                <span class="text-sm font-medium">15 Aug, 2026</span>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            <a href="/" class="w-full bg-[#c9a24b] text-[#10151a] font-semibold py-3.5 rounded-sm hover:bg-[#e6c26f] transition text-sm">Return to Home</a>
+            <a href="https://wa.me/917876611935" class="w-full border border-white/10 hover:border-white/20 py-3.5 rounded-sm transition text-sm text-slate-400">Contact Support on WhatsApp</a>
+        </div>
+    </div>
+
+</body>
+</html>
