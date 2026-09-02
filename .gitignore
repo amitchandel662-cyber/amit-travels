@@ -10,3 +10,8 @@ env/
 
 # Media uploads (so we don't push local photos)
 media/
+media.zip
+.DS_Store
+.DS_Store
+.DS_Store
+media_chunks/
